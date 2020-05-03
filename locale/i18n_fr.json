@@ -1,0 +1,34 @@
+{
+  "app_name": "FTZone ",
+
+  "app_title": "Ride & fun",
+
+  "language": "Langue",
+
+  "language_en": "English",
+
+  "language_fr": "Français",
+
+  "settings": "Réglages",
+
+  "general_settings": "Réglages Généraux",
+
+  "search_here": " Recherche par pays...",
+
+  "udpate_dlg_title": "Nouvelle mise à jour disponible",
+
+  "udpate_dlg_text": "Une nouvelle version de l'application est disponible, veuillez la mettre à jour maintenant.",
+
+  "update_dlg_now": "Mettez à jour maintenant",
+
+  "update_dlg_later": "Plus tard",
+
+  "startgeoloc" : "Tracking",
+
+  "tracking_title" : "Tracking",
+  
+  "setting_geo_home_title" : "Position de domicile",
+
+  "define_home_position" : "Définissez la positon votre domicile"
+
+}

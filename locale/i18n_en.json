@@ -1,0 +1,40 @@
+{
+"app_name":"Wath's Up World ",
+
+"app_title": "Ride \n fun",
+
+"language": "Language",
+
+"language_en": "English",
+
+"language_fr":"Français",
+
+"settings": "Settings",
+
+"general_settings": "General Settings",
+
+"weather": "Weather",
+
+"temperature": "Temperature",
+
+"news": "News",
+
+"country": "Country",
+
+"udpate_dlg_title" : "New Update Available",
+
+"udpate_dlg_text" : "There is a newer version of app available please update it now.",
+
+"update_dlg_now" : "Update Now",
+
+"update_dlg_later" :"Later",
+
+"startgeoloc" : "Tracking",
+
+"tracking_title" : "Tracking",
+
+"setting_geo_home_title" : "Home location",
+
+"define_home_position" : "Define your home location "
+
+}

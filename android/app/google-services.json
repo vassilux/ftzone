@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1011126629394",
+    "firebase_url": "https://ftzone-82836.firebaseio.com",
+    "project_id": "ftzone-82836",
+    "storage_bucket": "ftzone-82836.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1011126629394:android:841383a6eb68c26a99d4cb",
+        "android_client_info": {
+          "package_name": "com.vassilux.ftzone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1011126629394-hckgqmdhn5cv4q7t1de19o3c2om06gst.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIgrlP6paGG_tbFVj1BDEVjCzPWwrq_XU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1011126629394-hckgqmdhn5cv4q7t1de19o3c2om06gst.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
