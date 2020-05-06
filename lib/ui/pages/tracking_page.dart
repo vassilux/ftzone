@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -15,6 +17,7 @@ import 'package:ftzone/config/palette.dart';
 import 'package:ftzone/logic/bloc/settings/settings_bloc.dart';
 import 'package:ftzone/logic/bloc/tracking/tracking_bloc.dart';
 import 'package:ftzone/ui/tools/length.dart';
+import 'package:map_controller/map_controller.dart';
 import 'package:responsive_screen/responsive_screen.dart';
 
 class TrackingPage extends StatefulWidget {
@@ -31,10 +34,28 @@ class _TrackingPageState extends State<TrackingPage>
   double _homeLatitude = 0;
   double _homeLongitude = 0;
   List<CircleMarker> _circleMarkers = <CircleMarker>[];
-  List<Marker> _markers = <Marker>[];
+  //List<Marker> _markers = <Marker>[];
+
+  MapController _mapController;
+
+  StatefulMapController _statefulMapController;
+
+  StreamSubscription<StatefulMapControllerStateChange> _sub;
+
 
   @override
   void initState() {
+    _mapController = MapController();
+    _statefulMapController = StatefulMapController(mapController: _mapController);
+
+    // wait for the controller to be ready before using it
+    _statefulMapController.onReady.then((_) => print("The map controller is ready"));
+
+    /// [Important] listen to the changefeed to rebuild the map on changes:
+    /// this will rebuild the map when for example addMarker or any method 
+    /// that mutates the map assets is called
+    _sub = _statefulMapController.changeFeed.listen((change) => setState(() {}));
+
     _homeLatitude = BlocProvider.of<SettingsBloc>(context)
         .getSetting<double>("home_latitude")
         .value;
@@ -60,7 +81,9 @@ class _TrackingPageState extends State<TrackingPage>
       ),
     );
 
-    _markers.add(homeMarker);
+    _statefulMapController.addMarker(marker: homeMarker, name: "Home");
+
+    //_markers.add(homeMarker);
 
     _circleMarkers.add(
       CircleMarker(
@@ -117,12 +140,11 @@ class _TrackingPageState extends State<TrackingPage>
             return LoadingWidget();
           }
 
-          if (state is TrackingLoadSuccess) {
-            _markers.removeWhere((m) =>
-                m.point.latitude != _homeLatitude &&
-                m.point.longitude != _homeLongitude);
+          if (state is TrackingLoadSuccess) {           
+            
+            _statefulMapController.removeMarker(name: "myposition");
 
-            _markers.add(Marker(
+            var postion = Marker(
               width: 64.0,
               height: 64.0,
               point: LatLng(state.position.latitude, state.position.longitude),
@@ -133,8 +155,11 @@ class _TrackingPageState extends State<TrackingPage>
                   backgroundImage: AssetImage(UIData.trackingPositionImage),
                 ),
               ),
-            ));
+            );
 
+            _statefulMapController.addMarker(marker: postion, name: "Position");
+            
+            
             BlocProvider.of<TrackingBloc>(context).add(
               TrackingCalculateDistance(_homeLatitude, _homeLongitude, state.position.latitude, state.position.longitude)
             );  
@@ -174,25 +199,12 @@ class _TrackingPageState extends State<TrackingPage>
           ),
           layers: [
             TileLayerOptions(
-              /* urlTemplate: "https://api.tiles.mapbox.com/v4/"
-            "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
-        additionalOptions: {
-          'accessToken': 'sk.eyJ1IjoidmFzc2lsdXgiLCJhIjoiY2s5bWg0ZzV4MDRmdDNmcDlscms1bDVnbCJ9.khszoCakE1gaybO07T0k6w',
-          'id': 'mapbox.streets',
-        },*/
-
               urlTemplate:
-                  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-              //'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              //subdomains: ['a', 'b', 'c'],
-
-              // For example purposes. It is recommended to use
-              // TileProvider with a caching and retry strategy, like
-              // NetworkTileProvider or CachedNetworkTileProvider
+                  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',           
               tileProvider:
-                  CachedNetworkTileProvider(), //NonCachingNetworkTileProvider(),
+                  CachedNetworkTileProvider(),
             ),
-            MarkerLayerOptions(markers: _markers),
+            MarkerLayerOptions(markers: _statefulMapController.markers),
             CircleLayerOptions(circles: _circleMarkers)
           ],
         ),
@@ -203,5 +215,11 @@ class _TrackingPageState extends State<TrackingPage>
   Widget build(BuildContext context) {
     super.build(context);
     return _scaffold();
+  }
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
   }
 }

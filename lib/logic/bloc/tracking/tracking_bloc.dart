@@ -37,7 +37,7 @@ var locationOptions = new LocationOptions(
       yield TrackingLoadInProgress();
       _locationSubscription?.cancel();
       var locationOptions =
-          new LocationOptions(accuracy: LocationAccuracy.lowest, distanceFilter : 500, 
+          new LocationOptions(accuracy: LocationAccuracy.lowest, distanceFilter : 50, 
           forceAndroidLocationManager : false, timeInterval : 0);
 
       _locationSubscription = _geolocator

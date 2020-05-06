@@ -12,9 +12,8 @@ import 'package:ftzone/ui/widgets/profile_tile.dart';
 import 'package:ftzone/utils/translations.dart';
 import 'package:ftzone/utils/uidata.dart';
 import 'package:ftzone/logic/bloc/menu/menu_bloc.dart';
-
 import 'package:ftzone/version_check.dart';
-import 'package:responsive_screen/responsive_screen.dart';
+
 
 class HomePage extends StatelessWidget {
   final MenuBloc menuBloc = MenuBloc();

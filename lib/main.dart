@@ -21,8 +21,7 @@ void main() async  {
   var sharedPreferences = await SharedPreferences.getInstance();
   //
    await allTranslations.init();
-  //
-  //runApp(MyApp());
+  //  
 
   runApp(
     MultiBlocProvider(
