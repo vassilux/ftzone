@@ -12,45 +12,47 @@ import 'myapp.dart';
 import 'simple_bloc_delegate.dart';
 import 'package:ftzone/model/setting.dart';
 
-
-void main() async  {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //
   BlocSupervisor.delegate = SimpleBlocDelegate();
   //
   var sharedPreferences = await SharedPreferences.getInstance();
   //
-   await allTranslations.init();
-  //  
+  await allTranslations.init();
+  //
 
   runApp(
     MultiBlocProvider(
-      providers: [        
-        BlocProvider<SettingsBloc>(
-          create: (context) => SettingsBloc(sharedPreferences : sharedPreferences,
-          usageSettings: [
-        Setting<double>(
-          key: 'home_latitude',
-          initValue: 0,
-        ),
-        Setting<double>(
-          key: 'home_longitude',
-          initValue: 0,
-        ),
-
-      ],
-      ),
-        ),
+      providers: [
         BlocProvider<GeolocationBloc>(
           create: (context) => GeolocationBloc(),
         ),
-        BlocProvider<TrackingBloc>(
-          create: (context) => TrackingBloc( geolocator : Geolocator()),
+        BlocProvider<SettingsBloc>(
+          create: (context) => SettingsBloc(
+            sharedPreferences: sharedPreferences,
+            usageSettings: [
+              Setting<double>(
+                key: 'home_latitude',
+                initValue: 0,
+              ),
+              Setting<double>(
+                key: 'home_longitude',
+                initValue: 0,
+              ),
+              Setting<int>(
+                key: 'distance',
+                initValue: 100,
+              ),
+            ],
+            geolocBloc: BlocProvider.of<GeolocationBloc>(context)
+          ),
         ),
-      
+        BlocProvider<TrackingBloc>(
+          create: (context) => TrackingBloc(geolocator: Geolocator()),
+        ),
       ],
       child: MyApp(),
     ),
   );
-
 }

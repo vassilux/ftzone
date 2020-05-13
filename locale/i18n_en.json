@@ -35,6 +35,8 @@
 
 "setting_geo_home_title" : "Home location",
 
-"define_home_position" : "Define your home location "
+"define_home_position" : "Define your home location ",
+
+"setting_geo_distance" : "Set the maximum distance from your home"
 
 }

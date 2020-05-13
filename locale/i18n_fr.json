@@ -29,6 +29,8 @@
   
   "setting_geo_home_title" : "Position de domicile",
 
-  "define_home_position" : "Définissez la positon votre domicile"
+  "define_home_position" : "Définissez la positon votre domicile",
+
+  "setting_geo_distance" : "Définissez la distance maximle de votre domicile"
 
 }

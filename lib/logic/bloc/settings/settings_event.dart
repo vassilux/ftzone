@@ -19,3 +19,9 @@ class UpdateSetting extends SettingsEvent {
   @override 
   List<Object> get props => [updateSetting];
 }
+
+class RefreshedSettings extends SettingsEvent {
+  @override  
+  List<Object> get props => [];
+  
+}

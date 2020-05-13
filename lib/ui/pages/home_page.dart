@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:ftzone/config/config.dart';
 import 'package:ftzone/config/palette.dart';
 import 'package:ftzone/logic/bloc/settings/settings_bloc.dart';
@@ -13,7 +14,6 @@ import 'package:ftzone/utils/translations.dart';
 import 'package:ftzone/utils/uidata.dart';
 import 'package:ftzone/logic/bloc/menu/menu_bloc.dart';
 import 'package:ftzone/version_check.dart';
-
 
 class HomePage extends StatelessWidget {
   final MenuBloc menuBloc = MenuBloc();
@@ -86,19 +86,24 @@ class HomePage extends StatelessWidget {
             .getSetting<double>("home_longitude")
             .value;
 
+        var distance = BlocProvider.of<SettingsBloc>(context)
+            .getSetting<int>("distance")
+            .value;
+
         if (Config.enableFake) {
           homeLatitude = Config.fakeHomeLatitude;
           homeLongitude = Config.fakeHomeLongitude;
         }
 
         if (homeLatitude != 0 && homeLongitude != 0) {
-          return MapWidget(latitude: homeLatitude, longitude: homeLongitude);
+          return MapWidget(latitude: homeLatitude, longitude: homeLongitude, zoneRadius : distance * 1000.0);
         }
 
-        return Center(child: 
-        Text(
+        return Center(
+            child: Text(
           allTranslations.text("define_home_position"),
-          style: TextStyle(color: Palette.appColorRed, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Palette.appColorRed, fontWeight: FontWeight.bold),
         ));
       },
     );
@@ -131,7 +136,8 @@ class HomePage extends StatelessWidget {
               Text(allTranslations.text('app_title'),
                   style: UIData.h6Style.copyWith(
                     color: Palette.appColorBlue,
-                  ))
+                  )),
+                  
             ],
           ),
         ),
@@ -168,6 +174,7 @@ class HomePage extends StatelessWidget {
               ? CustomScrollView(
                   slivers: <Widget>[
                     appBar(),
+                    
                     bodyGrid(snapshot.data),
                     SliverFillRemaining(
                         hasScrollBody: true, child: buildMap(context))

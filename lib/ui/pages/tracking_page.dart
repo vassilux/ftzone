@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:ftzone/config/config.dart';
 import 'package:ftzone/ui/widgets/common_scaffold.dart';
@@ -33,8 +34,9 @@ class _TrackingPageState extends State<TrackingPage>
     with AutomaticKeepAliveClientMixin {
   double _homeLatitude = 0;
   double _homeLongitude = 0;
-  List<CircleMarker> _circleMarkers = <CircleMarker>[];
-  //List<Marker> _markers = <Marker>[];
+  int _distance = 100;
+
+  List<CircleMarker> _circleMarkers = <CircleMarker>[]; 
 
   MapController _mapController;
 
@@ -42,19 +44,21 @@ class _TrackingPageState extends State<TrackingPage>
 
   StreamSubscription<StatefulMapControllerStateChange> _sub;
 
-
   @override
   void initState() {
     _mapController = MapController();
-    _statefulMapController = StatefulMapController(mapController: _mapController);
+    _statefulMapController =
+        StatefulMapController(mapController: _mapController);
 
     // wait for the controller to be ready before using it
-    _statefulMapController.onReady.then((_) => print("The map controller is ready"));
+    _statefulMapController.onReady
+        .then((_) => print("The map controller is ready"));
 
     /// [Important] listen to the changefeed to rebuild the map on changes:
-    /// this will rebuild the map when for example addMarker or any method 
+    /// this will rebuild the map when for example addMarker or any method
     /// that mutates the map assets is called
-    _sub = _statefulMapController.changeFeed.listen((change) => setState(() {}));
+    _sub =
+        _statefulMapController.changeFeed.listen((change) => setState(() {}));
 
     _homeLatitude = BlocProvider.of<SettingsBloc>(context)
         .getSetting<double>("home_latitude")
@@ -63,10 +67,14 @@ class _TrackingPageState extends State<TrackingPage>
         .getSetting<double>("home_longitude")
         .value;
 
-    if(Config.enableFake ){
+    _distance = BlocProvider.of<SettingsBloc>(context)
+        .getSetting<int>("distance")
+        .value;
+
+    if (Config.enableFake) {
       _homeLatitude = Config.fakeHomeLatitude;
       _homeLongitude = Config.fakeHomeLongitude;
-    }  
+    }
 
     var homeMarker = Marker(
       width: 64.0,
@@ -92,7 +100,7 @@ class _TrackingPageState extends State<TrackingPage>
           borderColor: Colors.red,
           borderStrokeWidth: 2,
           useRadiusInMeter: true,
-          radius: 1000.0 * 100 // 100 km
+          radius: 1000.0 * _distance // 100 km
           ),
     );
 
@@ -127,66 +135,79 @@ class _TrackingPageState extends State<TrackingPage>
     final Function wp = Screen(context).wp;
 
     return Container(
-          width: wp(100),
-          height: hp(6),
-          decoration: new BoxDecoration(
-                  gradient: new LinearGradient(
-                colors: UIData.kitGradients3,
-              )),
-          child : Center(child: Column(children: <Widget>[
-      BlocBuilder<TrackingBloc, TrackingState>(
-        builder: (context, state) {
-          if (state is TrackingInitial) {
-            return LoadingWidget();
-          }
-
-          if (state is TrackingLoadSuccess) {           
-            
-            _statefulMapController.removeMarker(name: "myposition");
-
-            var postion = Marker(
-              width: 64.0,
-              height: 64.0,
-              point: LatLng(state.position.latitude, state.position.longitude),
-              builder: (ctx) => Container(
-                child: CircleAvatar(
-                  radius: 40.0,
-                  backgroundColor: Colors.transparent,
-                  backgroundImage: AssetImage(UIData.trackingPositionImage),
-                ),
-              ),
-            );
-
-            _statefulMapController.addMarker(marker: postion, name: "Position");
-            
-            
-            BlocProvider.of<TrackingBloc>(context).add(
-              TrackingCalculateDistance(_homeLatitude, _homeLongitude, state.position.latitude, state.position.longitude)
-            );  
-
-            return Container(child: ProfileTile(title : "Starting", subtitle : "", textColor : Colors.white) );
-            
-          }
-
-          
-            if(state is TrackingDistanceSuccess)   {
-              var length = Length.fromMeters(value: state.distance);
-              var color = Colors.white;
-
-              if(length.inMeters > 80 *1000){
-                color = Palette.appColorRed;
+        width: wp(100),
+        height: hp(8),
+        decoration: new BoxDecoration(
+            gradient: new LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          stops: [0.5, 0.7],         
+           colors: [
+                    Colors.blue,
+                    Colors.blue
+                  ]
+        )),
+        child: Center(
+            child: Column(children: <Widget>[         
+          BlocBuilder<TrackingBloc, TrackingState>(
+            builder: (context, state) {
+              if (state is TrackingInitial) {
+                return LoadingWidget();
               }
-              return Container(child: 
-              HorizonalTile(title : "Distance : ", subtitle : "${length.inKilometers.toStringAsFixed(2)} km", textColor : color) );
-              
-            }
 
-          return Container();
-        },
-      )])));
+              if (state is TrackingLoadSuccess) {
+                _statefulMapController.removeMarker(name: "myposition");
+
+                var postion = Marker(
+                  width: 64.0,
+                  height: 64.0,
+                  point:
+                      LatLng(state.position.latitude, state.position.longitude),
+                  builder: (ctx) => Container(
+                    child: CircleAvatar(
+                      radius: 40.0,
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: AssetImage(UIData.trackingPositionImage),
+                    ),
+                  ),
+                );
+
+                _statefulMapController.addMarker(
+                    marker: postion, name: "Position");
+
+                BlocProvider.of<TrackingBloc>(context).add(
+                    TrackingCalculateDistance(_homeLatitude, _homeLongitude,
+                        state.position.latitude, state.position.longitude));
+
+                return Container(
+                    child: ProfileTile(
+                        title: "Starting",
+                        subtitle: "",
+                        textColor: Colors.white));
+              }
+
+              if (state is TrackingDistanceSuccess) {
+                var length = Length.fromMeters(value: state.distance);
+                var color = Colors.white;
+
+                if (length.inMeters > 80 * 1000) {
+                  color = Palette.appColorRed;
+                }
+                return Container(
+                    child: HorizonalTile(
+                        title: "Distance : ",
+                        subtitle:
+                            "${length.inKilometers.toStringAsFixed(2)} km",
+                        textColor: color));
+              }
+
+              return Container();
+            },
+          ),
+        ])));
   }
 
-  Widget bodyData() { 
+  Widget bodyData() {
     return Column(children: <Widget>[
       _buildDistanceWidget(context),
       Flexible(
@@ -200,9 +221,8 @@ class _TrackingPageState extends State<TrackingPage>
           layers: [
             TileLayerOptions(
               urlTemplate:
-                  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',           
-              tileProvider:
-                  CachedNetworkTileProvider(),
+                  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+              tileProvider: CachedNetworkTileProvider(),
             ),
             MarkerLayerOptions(markers: _statefulMapController.markers),
             CircleLayerOptions(circles: _circleMarkers)

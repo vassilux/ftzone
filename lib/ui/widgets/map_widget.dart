@@ -10,6 +10,7 @@ class MapWidget extends StatelessWidget {
   final String image;
   final double zoneRadius;
 
+
   const MapWidget({this.latitude, this.longitude, this.image = UIData.homeImage, this.zoneRadius = (100 * 1000.0), Key key}) : super(key: key);
 
 

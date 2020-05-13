@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:ftzone/logic/bloc/geolocation/geolocation_bloc.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ftzone/model/setting.dart';
@@ -12,12 +13,28 @@ part 'settings_state.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final SharedPreferences sharedPreferences;
-  final List<Setting> _usageSettings;
+  final List<Setting> _usageSettings;  
 
-  SettingsBloc({@required this.sharedPreferences, @required List<Setting> usageSettings}) : 
-      _usageSettings = usageSettings,
+  SettingsBloc({@required this.sharedPreferences, @required List<Setting> usageSettings, @required GeolocationBloc geolocBloc}) : 
+      _usageSettings = usageSettings,     
         assert(sharedPreferences != null),
-        assert(usageSettings != null);
+        assert(usageSettings != null) {
+          geolocBloc.listen((state) {
+
+            if (state is GeolocationHomeLoaded) {
+            var homeLatitude = Setting<double>(
+                key: 'home_latitude', initValue: 0, value: state.latitude);
+            
+            _setSetting(homeLatitude);
+
+            var homeLongitude = Setting<double>(
+                key: 'home_longitude', initValue: 0, value: state.longitude);
+            _setSetting(homeLongitude);
+            add(RefreshedSettings());
+          }
+
+          });
+        }
 
   @override
   SettingsState get initialState => _loadSettings();
@@ -90,7 +107,27 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     if(event is UpdateSetting) {
       yield* _mapUpdateSetting(event);
     }
+
+    if(event is RefreshedSettings) {
+      yield* _mapRefreshSettings(event); 
+
+    }
+
+    
   }
+
+  Stream<SettingsState> _mapRefreshSettings(RefreshedSettings event) async* {
+    yield SettingsLoading();
+    try {    
+      //
+      yield _loadSettings(); 
+
+    } catch (_) {
+      yield SettingsError();
+
+    }
+  }
+
 
   Stream<SettingsState> _mapFetchSettings(FetchSettings event) async* {
     yield SettingsLoading();
